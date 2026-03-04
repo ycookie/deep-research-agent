@@ -1,9 +1,6 @@
 'use client';
 
 import { UIMessage, isToolUIPart, DynamicToolUIPart } from 'ai';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { CheckCircle, Loader2, XCircle } from 'lucide-react';
 
 interface SearchResult {
   title: string;
@@ -31,7 +28,6 @@ function extractSearchSteps(messages: UIMessage[]): SearchStep[] {
     for (const part of message.parts) {
       if (!isToolUIPart(part)) continue;
 
-      // Both typed ToolUIPart ('tool-search') and DynamicToolUIPart ('dynamic-tool')
       const toolPart = part as unknown as DynamicToolUIPart;
       if (toolPart.toolName !== 'search') continue;
 
@@ -57,54 +53,76 @@ function extractSearchSteps(messages: UIMessage[]): SearchStep[] {
 export function ResearchSteps({ messages, isLoading }: ResearchStepsProps) {
   const steps = extractSearchSteps(messages);
 
-  if (steps.length === 0) {
-    if (!isLoading) return null;
-    return (
-      <div className="flex flex-col gap-2">
-        <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-          Research Steps
-        </h2>
-        <Card className="border-border/60">
-          <CardContent className="py-3 px-4 flex items-center gap-3">
-            <Loader2 className="h-4 w-4 shrink-0 text-blue-500 animate-spin" />
-            <p className="text-sm text-muted-foreground">Preparing searches…</p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+  if (steps.length === 0 && !isLoading) return null;
 
   return (
-    <div className="flex flex-col gap-2">
-      <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-        Research Steps
-      </h2>
-      <div className="flex flex-col gap-2">
-        {steps.map((step, i) => (
-          <Card key={i} className="border-border/60">
-            <CardContent className="py-3 px-4 flex items-start gap-3">
-              {step.state === 'pending' ? (
-                <Loader2 className="h-4 w-4 mt-0.5 shrink-0 text-blue-500 animate-spin" />
-              ) : step.state === 'error' ? (
-                <XCircle className="h-4 w-4 mt-0.5 shrink-0 text-destructive" />
-              ) : (
-                <CheckCircle className="h-4 w-4 mt-0.5 shrink-0 text-green-500" />
-              )}
-              <div className="flex flex-col gap-1 min-w-0">
-                <p className="text-sm font-medium truncate">
-                  {step.state === 'pending' ? 'Searching:' : 'Searched:'}{' '}
-                  <span className="text-foreground/80">&ldquo;{step.query}&rdquo;</span>
+    <div className="lg:w-[240px] xl:w-[260px] shrink-0 flex flex-col gap-4">
+      {/* Section label */}
+      <div className="flex items-center gap-2">
+        <div className="h-px flex-1 bg-border/40" />
+        <span className="text-[10px] font-mono text-muted-foreground/50 uppercase tracking-[0.15em]">
+          Search Trace
+        </span>
+        <div className="h-px flex-1 bg-border/40" />
+      </div>
+
+      {steps.length === 0 ? (
+        <div className="flex items-center gap-3 px-1">
+          <div className="w-[11px] h-[11px] rounded-full border border-amber-500/50 bg-amber-500/10 flex items-center justify-center shrink-0">
+            <div className="w-[5px] h-[5px] rounded-full bg-amber-400 animate-pulse" />
+          </div>
+          <span className="text-xs font-mono text-muted-foreground/50">Preparing searches…</span>
+        </div>
+      ) : (
+        <div className="relative flex flex-col">
+          {/* Vertical timeline connector */}
+          <div className="absolute left-[5px] top-3 bottom-3 w-px bg-border/25" />
+
+          {steps.map((step, i) => (
+            <div
+              key={i}
+              className="flex items-start gap-3 pb-4 last:pb-0 animate-step-enter"
+              style={{ animationDelay: `${i * 0.07}s` }}
+            >
+              {/* Timeline dot */}
+              <div
+                className={`relative mt-1.5 w-[11px] h-[11px] shrink-0 rounded-full border flex items-center justify-center z-10 ${
+                  step.state === 'pending'
+                    ? 'border-amber-500/60 bg-amber-500/10'
+                    : step.state === 'done'
+                    ? 'border-green-500/60 bg-green-500/10'
+                    : 'border-red-500/60 bg-red-500/10'
+                }`}
+              >
+                <div
+                  className={`w-[5px] h-[5px] rounded-full ${
+                    step.state === 'pending'
+                      ? 'bg-amber-400 animate-pulse'
+                      : step.state === 'done'
+                      ? 'bg-green-400'
+                      : 'bg-red-400'
+                  }`}
+                />
+              </div>
+
+              {/* Step content */}
+              <div className="flex flex-col gap-1 min-w-0 flex-1 pt-0.5">
+                <p className="text-xs font-mono text-foreground/70 leading-relaxed break-words">
+                  &ldquo;{step.query}&rdquo;
                 </p>
                 {step.state === 'done' && step.results && (
-                  <Badge variant="secondary" className="w-fit text-xs">
-                    {step.results.length} result{step.results.length !== 1 ? 's' : ''} found
-                  </Badge>
+                  <span className="text-[10px] font-mono text-muted-foreground/45">
+                    {step.results.length} sources
+                  </span>
+                )}
+                {step.state === 'error' && (
+                  <span className="text-[10px] font-mono text-red-500/60">search failed</span>
                 )}
               </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

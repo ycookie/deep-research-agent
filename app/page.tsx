@@ -6,7 +6,6 @@ import { DefaultChatTransport } from 'ai';
 import { ResearchForm } from '@/components/research-form';
 import { ResearchSteps } from '@/components/research-steps';
 import { ResearchReport } from '@/components/research-report';
-import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
 
@@ -29,29 +28,26 @@ export default function ResearchPage() {
     () => loadFromStorage<string>(QUERY_KEY, '')
   );
 
-const { messages, sendMessage, status, setMessages } = useChat({
-  transport: new DefaultChatTransport({
-    api: '/api/chat'
-  }),
-});
+  const { messages, sendMessage, status, setMessages } = useChat({
+    transport: new DefaultChatTransport({
+      api: '/api/chat'
+    }),
+  });
 
-// Load saved messages on first render
-useEffect(() => {
-  const saved = loadFromStorage(STORAGE_KEY, []);  // ✅ add []
-  if (saved?.length) {
-    setMessages(saved);
-  }
-}, []);
+  useEffect(() => {
+    const saved = loadFromStorage(STORAGE_KEY, []);
+    if (saved?.length) {
+      setMessages(saved);
+    }
+  }, []);
 
   const isLoading = status === 'submitted' || status === 'streaming';
   const hasStarted = messages.length > 0;
 
-  // Persist messages whenever they change
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
   }, [messages]);
 
-  // Persist last submitted query
   useEffect(() => {
     localStorage.setItem(QUERY_KEY, submittedQuery);
   }, [submittedQuery]);
@@ -73,47 +69,72 @@ useEffect(() => {
 
   return (
     <main className="min-h-screen bg-background">
-      <div className="max-w-6xl mx-auto px-4 py-10 flex flex-col gap-8">
+      {/* Ambient background glows */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-[-15%] left-[5%] w-[700px] h-[500px] bg-amber-500/[0.04] blur-[160px] rounded-full" />
+        <div className="absolute bottom-[-20%] right-[0%] w-[500px] h-[400px] bg-blue-600/[0.03] blur-[130px] rounded-full" />
+      </div>
+
+      <div className="relative max-w-6xl mx-auto px-6 py-8 flex flex-col gap-10">
         {/* Header */}
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex flex-col gap-1">
-            <h1 className="text-3xl font-bold tracking-tight">Deep Research Agent</h1>
-            <p className="text-muted-foreground">
-              Enter a topic and the agent will conduct multiple web searches to produce a
-              comprehensive research report.
-            </p>
+        <header className="flex items-center justify-between animate-fade-in-up">
+          <div className="flex items-center gap-3">
+            <div className="relative flex items-center justify-center w-5 h-5">
+              <div className="w-2 h-2 rounded-full bg-amber-400" />
+              <div className="absolute w-2 h-2 rounded-full bg-amber-400 animate-ping opacity-25" />
+            </div>
+            <span className="font-display text-base font-semibold tracking-wide text-foreground/90">
+              Deep Research Agent
+            </span>
           </div>
           {hasStarted && (
             <Button
               variant="ghost"
               size="sm"
-              className="shrink-0 text-muted-foreground hover:text-destructive"
+              className="text-muted-foreground hover:text-destructive font-mono text-xs gap-1.5 h-8"
               onClick={handleClear}
             >
-              <Trash2 className="h-4 w-4 mr-1" />
-              Clear history
+              <Trash2 className="h-3.5 w-3.5" />
+              Clear
             </Button>
           )}
-        </div>
+        </header>
+
+        {/* Hero — only shown before first research */}
+        {!hasStarted && !isLoading && (
+          <div
+            className="text-center pt-8 pb-2 animate-fade-in-up"
+            style={{ animationDelay: '0.1s' }}
+          >
+            <h1 className="font-display text-5xl font-bold text-foreground leading-tight mb-4">
+              Research anything,{' '}
+              <span className="text-amber-400">deeply.</span>
+            </h1>
+            <p className="text-muted-foreground text-base max-w-lg mx-auto leading-relaxed">
+              Multi-step web research with AI synthesis. The agent searches, reads, and writes a comprehensive report.
+            </p>
+          </div>
+        )}
 
         {/* Query form */}
-        <ResearchForm
-          input={input}
-          isLoading={isLoading}
-          onInputChange={(e) => setInput(e.target.value)}
-          onSubmit={handleSubmit}
-        />
+        <div
+          className="animate-fade-in-up"
+          style={{ animationDelay: hasStarted ? '0s' : '0.2s' }}
+        >
+          <ResearchForm
+            input={input}
+            isLoading={isLoading}
+            onInputChange={(e) => setInput(e.target.value)}
+            onSubmit={handleSubmit}
+          />
+        </div>
 
+        {/* Results */}
         {(isLoading || hasStarted) && (
-          <>
-            <Separator />
-
-            {/* Two-column layout: steps | report */}
-            <div className="flex flex-col lg:flex-row items-start gap-6 w-full">
-              <ResearchSteps messages={messages} isLoading={isLoading} />
-              <ResearchReport messages={messages} isLoading={isLoading} query={submittedQuery} />
-            </div>
-          </>
+          <div className="flex flex-col lg:flex-row items-start gap-8 w-full animate-fade-in-up">
+            <ResearchSteps messages={messages} isLoading={isLoading} />
+            <ResearchReport messages={messages} isLoading={isLoading} query={submittedQuery} />
+          </div>
         )}
       </div>
     </main>

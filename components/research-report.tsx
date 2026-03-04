@@ -3,10 +3,8 @@
 import { useState } from 'react';
 import { UIMessage, isTextUIPart } from 'ai';
 import ReactMarkdown from 'react-markdown';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { FileText, Copy, Download } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Copy, Download, Check } from 'lucide-react';
 
 interface ResearchReportProps {
   messages: UIMessage[];
@@ -57,64 +55,86 @@ export function ResearchReport({ messages, isLoading, query }: ResearchReportPro
   };
 
   return (
-    <div className="flex flex-col gap-2 h-full flex-1 min-w-0">
-      <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-        Research Report
-      </h2>
-      <Card className="flex-1 border-border/60">
-        <CardHeader className="pb-2 pt-4 px-4">
-          <div className="flex items-center justify-between gap-2">
-            <CardTitle className="flex items-center gap-2 text-base min-w-0">
-              <FileText className="h-4 w-4 shrink-0" />
-              Report
-              {query && (
-                <span className="text-sm font-normal text-muted-foreground ml-2 truncate">
-                  — {query}
-                </span>
-              )}
-              {isLoading && content.length === 0 && (
-                <span className="text-xs text-muted-foreground font-normal animate-pulse shrink-0">
-                  Generating…
-                </span>
-              )}
-            </CardTitle>
-            {content && (
-              <div className="flex items-center gap-1 shrink-0">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-7 px-2 text-xs"
-                  onClick={handleCopy}
-                >
-                  <Copy className="h-3.5 w-3.5 mr-1" />
-                  {copied ? 'Copied!' : 'Copy'}
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-7 px-2 text-xs"
-                  onClick={handleExport}
-                >
-                  <Download className="h-3.5 w-3.5 mr-1" />
-                  Export
-                </Button>
-              </div>
+    <div className="flex-1 min-w-0 flex flex-col gap-4">
+      {/* Section label */}
+      <div className="flex items-center gap-2">
+        <div className="h-px flex-1 bg-border/40" />
+        <span className="text-[10px] font-mono text-muted-foreground/50 uppercase tracking-[0.15em]">
+          Research Report
+        </span>
+        <div className="h-px flex-1 bg-border/40" />
+      </div>
+
+      <div className="bg-card border border-border/50 rounded-xl overflow-hidden">
+        {/* Report toolbar */}
+        <div className="flex items-center justify-between px-5 py-3 border-b border-border/40 bg-muted/10">
+          <div className="flex items-center gap-3 min-w-0">
+            {query && (
+              <span className="text-xs font-mono text-muted-foreground/60 truncate max-w-[280px]">
+                {query}
+              </span>
+            )}
+            {isLoading && !content && (
+              <span className="text-xs font-mono text-amber-500/60 animate-pulse">
+                ● generating...
+              </span>
+            )}
+            {isLoading && content && (
+              <span className="text-xs font-mono text-amber-500/60 animate-pulse">
+                ● streaming
+              </span>
             )}
           </div>
-        </CardHeader>
-        <CardContent className="px-4 pb-4">
-          <ScrollArea className="h-[500px] pr-3">
+          {content && (
+            <div className="flex items-center gap-0.5 shrink-0">
+              <button
+                onClick={handleCopy}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-mono text-muted-foreground/60 hover:text-foreground transition-colors rounded-md hover:bg-muted/40"
+              >
+                {copied ? (
+                  <Check className="h-3 w-3 text-green-400" />
+                ) : (
+                  <Copy className="h-3 w-3" />
+                )}
+                {copied ? 'Copied' : 'Copy'}
+              </button>
+              <button
+                onClick={handleExport}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-mono text-muted-foreground/60 hover:text-foreground transition-colors rounded-md hover:bg-muted/40"
+              >
+                <Download className="h-3 w-3" />
+                Export
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Content */}
+        <ScrollArea className="h-[560px]">
+          <div className="px-6 py-6">
             {isLoading && !content ? (
-              <div className="space-y-3 animate-pulse">
-                <div className="h-4 bg-muted rounded w-3/4" />
-                <div className="h-4 bg-muted rounded w-full" />
-                <div className="h-4 bg-muted rounded w-5/6" />
-                <div className="h-4 bg-muted rounded w-4/5" />
-                <div className="h-4 bg-muted rounded w-full" />
-                <div className="h-4 bg-muted rounded w-2/3" />
+              <div className="space-y-3">
+                {[0.75, 1, 0.88, 0.6, 1, 0.82, 0.7, 0.95, 0.5].map((w, i) => (
+                  <div
+                    key={i}
+                    className="h-3 bg-muted/30 rounded animate-pulse"
+                    style={{ width: `${w * 100}%`, animationDelay: `${i * 0.08}s` }}
+                  />
+                ))}
               </div>
             ) : content ? (
-              <div className="prose prose-sm dark:prose-invert max-w-none">
+              <div
+                className="prose prose-sm dark:prose-invert max-w-none
+                  prose-headings:font-display prose-headings:font-semibold prose-headings:text-foreground
+                  prose-h1:text-2xl prose-h1:mb-4 prose-h1:mt-0
+                  prose-h2:text-lg prose-h2:mt-8 prose-h2:mb-3
+                  prose-h3:text-base prose-h3:mt-6 prose-h3:mb-2
+                  prose-p:text-foreground/75 prose-p:leading-relaxed
+                  prose-li:text-foreground/75
+                  prose-strong:text-foreground prose-strong:font-semibold
+                  prose-code:font-mono prose-code:text-amber-400/80 prose-code:bg-muted/30 prose-code:rounded prose-code:px-1 prose-code:text-[0.8em]
+                  prose-blockquote:border-l-amber-500/30 prose-blockquote:text-muted-foreground prose-blockquote:not-italic"
+              >
                 <ReactMarkdown
                   components={{
                     a: ({ href, children }) => (
@@ -122,7 +142,7 @@ export function ResearchReport({ messages, isLoading, query }: ResearchReportPro
                         href={href}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-500 hover:underline break-all"
+                        className="text-amber-400/80 hover:text-amber-400 underline decoration-amber-400/25 hover:decoration-amber-400/50 transition-colors break-all"
                       >
                         {children}
                       </a>
@@ -133,13 +153,13 @@ export function ResearchReport({ messages, isLoading, query }: ResearchReportPro
                 </ReactMarkdown>
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground italic">
-                The report will appear here once research is complete…
+              <p className="text-sm font-mono text-muted-foreground/35 italic">
+                Report will appear here once research is complete…
               </p>
             )}
-          </ScrollArea>
-        </CardContent>
-      </Card>
+          </div>
+        </ScrollArea>
+      </div>
     </div>
   );
 }
