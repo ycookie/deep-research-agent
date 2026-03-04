@@ -9,7 +9,6 @@ import { ResearchReport } from '@/components/research-report';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
-import { useState, useEffect } from 'react';
 
 const STORAGE_KEY = 'research-messages';
 const QUERY_KEY = 'research-last-query';
