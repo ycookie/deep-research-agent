@@ -21,7 +21,7 @@ export async function POST(req: Request) {
 
   const result = streamText({
     model: openrouter('google/gemini-2.0-flash-lite'),
-    maxTokens: 8000,
+ 
     system: SYSTEM,
     messages: modelMessages,
     tools: {
