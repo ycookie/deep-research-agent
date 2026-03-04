@@ -46,6 +46,32 @@ The "Clear history" button wipes both keys and calls `setMessages([])`.
 
 Tailwind v4 + shadcn/ui components (in `components/ui/`). New shadcn components can be added with `npx shadcn add <component>`.
 
+The app uses a **dark editorial aesthetic** forced via `class="dark"` on `<html>`:
+
+- **Theme** — deep ink background, warm amber (`oklch(0.73 0.14 67)`) as primary/accent, defined in `app/globals.css`
+- **Fonts** (loaded via `next/font/google` in `app/layout.tsx`):
+  - `Playfair Display` (`--font-playfair`) — headings, use with `font-display` class
+  - `IBM Plex Mono` (`--font-ibm-mono`) — queries, code, UI labels, use with `font-mono` class
+  - `DM Sans` (`--font-dm-sans`) — body text, default sans
+- **Animations** — `animate-fade-in-up` (page sections) and `animate-step-enter` (timeline steps) defined in `globals.css`
+- **Layout** — hero section on empty state, two-column results (timeline left, report right)
+- **ResearchSteps** — timeline style with vertical connector line and amber/green/red dot indicators
+- **ResearchForm** — custom amber submit button (not shadcn Button), monospace textarea with amber focus ring
+- **ResearchReport** — dark card with prose styled via Tailwind Typography; amber links and inline code
+
+The app uses a **dark editorial aesthetic** forced via `class="dark"` on `<html>`:
+
+- **Theme** — deep ink background, warm amber (`oklch(0.73 0.14 67)`) as primary/accent, defined in `app/globals.css`
+- **Fonts** (loaded via `next/font/google` in `app/layout.tsx`):
+  - `Playfair Display` (`--font-playfair`) — headings, use with `font-display` class
+  - `IBM Plex Mono` (`--font-ibm-mono`) — queries, code, UI labels, use with `font-mono` class
+  - `DM Sans` (`--font-dm-sans`) — body text, default sans
+- **Animations** — `animate-fade-in-up` (page sections) and `animate-step-enter` (timeline steps) defined in `globals.css`
+- **Layout** — hero section on empty state, two-column results (timeline left, report right)
+- **ResearchSteps** — timeline style with vertical connector line and amber/green/red dot indicators
+- **ResearchForm** — custom amber submit button (not shadcn Button), monospace textarea with amber focus ring
+- **ResearchReport** — dark card with prose styled via Tailwind Typography; amber links and inline code
+
 ## Claude Code Skills
 
 Two skills live in `.claude/skills/`:
