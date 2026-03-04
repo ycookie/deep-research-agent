@@ -20,7 +20,7 @@ export async function POST(req: Request) {
   const modelMessages = await convertToModelMessages(messages);
 
   const result = streamText({
-    model: openrouter('google/gemini-3-flash-preview'),
+    model: openrouter('google/gemini-2.0-flash-exp:free'),
     system: SYSTEM,
     messages: modelMessages,
     tools: {
@@ -32,7 +32,13 @@ export async function POST(req: Request) {
         execute: async (input) => searchWeb(input.query),
       }),
     },
+    maxTokens: 8000,
     stopWhen: stepCountIs(15),
+    providerOptions: {
+      openrouter: {
+        max_tokens: 8000,
+      },
+    },
   });
 
   return result.toUIMessageStreamResponse();
