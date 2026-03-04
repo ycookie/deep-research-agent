@@ -9,6 +9,7 @@ import { ResearchReport } from '@/components/research-report';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 const STORAGE_KEY = 'research-messages';
 const QUERY_KEY = 'research-last-query';
@@ -30,11 +31,18 @@ export default function ResearchPage() {
   );
 
 const { messages, sendMessage, status, setMessages } = useChat({
-  initialMessages: loadFromStorage(STORAGE_KEY),  // move it here
-  transport: new DefaultChatTransport({ 
+  transport: new DefaultChatTransport({
     api: '/api/chat'
   }),
 });
+
+// Load saved messages on first render
+useEffect(() => {
+  const saved = loadFromStorage(STORAGE_KEY);
+  if (saved?.length) {
+    setMessages(saved);
+  }
+}, []);
 
   const isLoading = status === 'submitted' || status === 'streaming';
   const hasStarted = messages.length > 0;
