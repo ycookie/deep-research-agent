@@ -37,7 +37,7 @@ const { messages, sendMessage, status, setMessages } = useChat({
 
 // Load saved messages on first render
 useEffect(() => {
-  const saved = loadFromStorage(STORAGE_KEY);
+  const saved = loadFromStorage(STORAGE_KEY, []);  // ✅ add []
   if (saved?.length) {
     setMessages(saved);
   }
