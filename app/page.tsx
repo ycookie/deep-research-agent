@@ -29,10 +29,12 @@ export default function ResearchPage() {
     () => loadFromStorage<string>(QUERY_KEY, '')
   );
 
-  const { messages, sendMessage, status, setMessages } = useChat({
-    transport: new DefaultChatTransport({ api: '/api/research' }),
-    initialMessages: loadFromStorage(STORAGE_KEY, []),
-  });
+const { messages, sendMessage, status, setMessages } = useChat({
+  initialMessages: loadFromStorage(STORAGE_KEY),  // move it here
+  transport: new DefaultChatTransport({ 
+    api: '/api/chat'
+  }),
+});
 
   const isLoading = status === 'submitted' || status === 'streaming';
   const hasStarted = messages.length > 0;
